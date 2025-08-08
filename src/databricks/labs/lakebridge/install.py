@@ -25,6 +25,7 @@ from databricks.labs.blueprint.wheels import ProductInfo
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.errors import NotFound, PermissionDenied
 
+from databricks.labs.lakebridge.__about__ import __version__
 from databricks.labs.lakebridge.config import (
     DatabaseConfig,
     ReconcileConfig,
@@ -32,6 +33,7 @@ from databricks.labs.lakebridge.config import (
     ReconcileMetadataConfig,
     TranspileConfig,
 )
+from databricks.labs.lakebridge.contexts.application import ApplicationContext
 from databricks.labs.lakebridge.deployment.configurator import ResourceConfigurator
 from databricks.labs.lakebridge.deployment.installation import WorkspaceInstallation
 from databricks.labs.lakebridge.reconcile.constants import ReconReportType, ReconSourceType
@@ -264,14 +266,14 @@ class WheelInstaller(TranspilerInstaller):
             raise ValueError("Installed transpiler is missing a 'config.yml' file in its 'lsp' folder")
         install_ext = "ps1" if sys.platform == "win32" else "sh"
         install_script = f"installer.{install_ext}"
-        installer = self._install_path / install_script
-        if installer.exists():
-            self._run_custom_installer(installer)
+        installer_path = self._install_path / install_script
+        if installer_path.exists():
+            self._run_custom_installer(installer_path)
         return self._install_path
 
-    def _run_custom_installer(self, installer):
-        args = [str(installer)]
-        run(args, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr, cwd=str(self._install_path), check=True)
+    def _run_custom_installer(self, installer_path: Path) -> None:
+        args = [installer_path]
+        run(args, stdin=sys.stdin, stdout=sys.stdout, stderr=sys.stderr, cwd=self._install_path, check=True)
 
 
 class MavenInstaller(TranspilerInstaller):
@@ -444,6 +446,13 @@ class WorkspaceInstaller:
         self._ws_installation.install(config)
         logger.info("Installation completed successfully! Please refer to the documentation for the next steps.")
         return config
+
+    def has_installed_transpilers(self) -> bool:
+        """Detect whether there are transpilers currently installed."""
+        installed_transpilers = self._transpiler_repository.all_transpiler_names()
+        if installed_transpilers:
+            logger.info(f"Detected installed transpilers: {sorted(installed_transpilers)}")
+        return bool(installed_transpilers)
 
     def install_bladebridge(self, artifact: Path | None = None) -> None:
         local_name = "bladebridge"
@@ -798,3 +807,28 @@ class WorkspaceInstaller:
 
     def _has_necessary_access(self, catalog_name: str, schema_name: str, volume_name: str | None = None):
         self._resource_configurator.has_necessary_access(catalog_name, schema_name, volume_name)
+
+
+def installer(ws: WorkspaceClient, transpiler_repository: TranspilerRepository) -> WorkspaceInstaller:
+    app_context = ApplicationContext(_verify_workspace_client(ws))
+    return WorkspaceInstaller(
+        app_context.workspace_client,
+        app_context.prompts,
+        app_context.installation,
+        app_context.install_state,
+        app_context.product_info,
+        app_context.resource_configurator,
+        app_context.workspace_installation,
+        transpiler_repository=transpiler_repository,
+    )
+
+
+def _verify_workspace_client(ws: WorkspaceClient) -> WorkspaceClient:
+    """Verifies the workspace client configuration, ensuring it has the correct product info."""
+
+    # Using reflection to set right value for _product_info for telemetry
+    product_info = getattr(ws.config, '_product_info')
+    if product_info[0] != "lakebridge":
+        setattr(ws.config, '_product_info', ('lakebridge', __version__))
+
+    return ws

@@ -11,7 +11,9 @@ from cryptography.hazmat.primitives import serialization
 
 from databricks.labs.lakebridge.reconcile.connectors.data_source import DataSource
 from databricks.labs.lakebridge.reconcile.connectors.jdbc_reader import JDBCReaderMixin
+from databricks.labs.lakebridge.reconcile.connectors.models import NormalizedIdentifier
 from databricks.labs.lakebridge.reconcile.connectors.secrets import SecretsMixin
+from databricks.labs.lakebridge.reconcile.connectors.dialect_utils import DialectUtils
 from databricks.labs.lakebridge.reconcile.exception import InvalidSnowflakePemPrivateKey
 from databricks.labs.lakebridge.reconcile.recon_config import JdbcReaderOptions, Schema
 from databricks.sdk import WorkspaceClient
@@ -22,6 +24,8 @@ logger = logging.getLogger(__name__)
 
 class SnowflakeDataSource(DataSource, SecretsMixin, JDBCReaderMixin):
     _DRIVER = "snowflake"
+    _IDENTIFIER_DELIMITER = "\""
+
     """
        * INFORMATION_SCHEMA:
           - see https://docs.snowflake.com/en/sql-reference/info-schema#considerations-for-replacing-show-commands-with-information-schema-views
@@ -144,9 +148,10 @@ class SnowflakeDataSource(DataSource, SecretsMixin, JDBCReaderMixin):
         try:
             logger.debug(f"Fetching schema using query: \n`{schema_query}`")
             logger.info(f"Fetching Schema: Started at: {datetime.now()}")
-            schema_metadata = self.reader(schema_query).load().collect()
+            df = self.reader(schema_query).load()
+            schema_metadata = df.select([col(c).alias(c.lower()) for c in df.columns]).collect()
             logger.info(f"Schema fetched successfully. Completed at: {datetime.now()}")
-            return [Schema(field.COLUMN_NAME.lower(), field.DATA_TYPE.lower()) for field in schema_metadata]
+            return [self._map_meta_column(field) for field in schema_metadata]
         except (RuntimeError, PySparkException) as e:
             return self.log_and_throw_exception(e, "schema", schema_query)
 
@@ -171,3 +176,10 @@ class SnowflakeDataSource(DataSource, SecretsMixin, JDBCReaderMixin):
                 raise NotFound(message) from e
 
         return self._spark.read.format("snowflake").option("dbtable", f"({query}) as tmp").options(**options)
+
+    def normalize_identifier(self, identifier: str) -> NormalizedIdentifier:
+        return DialectUtils.normalize_identifier(
+            identifier,
+            source_start_delimiter=SnowflakeDataSource._IDENTIFIER_DELIMITER,
+            source_end_delimiter=SnowflakeDataSource._IDENTIFIER_DELIMITER,
+        )

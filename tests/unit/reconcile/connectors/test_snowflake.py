@@ -5,6 +5,8 @@ from unittest.mock import MagicMock, create_autospec
 import pytest
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
+
+from databricks.labs.lakebridge.reconcile.connectors.models import NormalizedIdentifier
 from databricks.labs.lakebridge.transpiler.sqlglot.dialect_utils import get_dialect
 from databricks.labs.lakebridge.reconcile.connectors.snowflake import SnowflakeDataSource
 from databricks.labs.lakebridge.reconcile.exception import DataSourceRuntimeException, InvalidSnowflakePemPrivateKey
@@ -310,3 +312,15 @@ def test_read_data_with_out_any_auth():
         NotFound, match='sfPassword and pem_private_key not found. Either one is required for snowflake auth.'
     ):
         dfds.read_data("org", "data", "employee", "select 1 from :tbl", table_conf.jdbc_reader_options)
+
+
+def test_normalize_identifier():
+    engine, spark, ws, scope = initial_setup()
+    data_source = SnowflakeDataSource(engine, spark, ws, scope)
+
+    assert data_source.normalize_identifier("a") == NormalizedIdentifier("`a`", '"a"')
+    assert data_source.normalize_identifier('"b"') == NormalizedIdentifier("`b`", '"b"')
+    assert data_source.normalize_identifier('"`e`f`"') == NormalizedIdentifier("```e``f```", '"`e`f`"')
+    assert data_source.normalize_identifier('" g h "') == NormalizedIdentifier("` g h `", '" g h "')
+    assert data_source.normalize_identifier('"""j""k"""') == NormalizedIdentifier('`"j"k"`', '"""j""k"""')
+    assert data_source.normalize_identifier('"j""k"') == NormalizedIdentifier('`j"k`', '"j""k"')

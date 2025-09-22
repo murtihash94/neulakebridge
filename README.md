@@ -70,7 +70,7 @@ Before getting started, ensure you have the following installed:
    ```
 
 5. **Access the web interface:**
-   Open your browser and navigate to: `http://localhost:5000`
+   Open your browser and navigate to: `http://localhost:8080`
 
 ### Method 2: Minimal Installation
 
@@ -241,7 +241,7 @@ transpiler_options:
 
 1. **Basic Health Check:**
    ```bash
-   curl http://localhost:5000/api/status
+   curl http://localhost:8080/api/status
    ```
    Expected response:
    ```json
@@ -262,11 +262,11 @@ transpiler_options:
    curl -X POST \
      -F "source_dialect=sqlserver" \
      -F "sql_file=@test.sql" \
-     http://localhost:5000/transpile
+     http://localhost:8080/transpile
    ```
 
 3. **Web Interface Test:**
-   - Navigate to `http://localhost:5000`
+   - Navigate to `http://localhost:8080`
    - Click "Transpile SQL"
    - Upload a small SQL file
    - Verify results are displayed
@@ -423,7 +423,7 @@ Content-Type: multipart/form-data
 curl -X POST \
   -F "source_dialect=snowflake" \
   -F "sql_file=@example.sql" \
-  http://localhost:5000/transpile
+  http://localhost:8080/transpile
 ```
 
 ### Analysis Endpoint
@@ -606,9 +606,9 @@ OSError: [Errno 48] Address already in use
 **Solution:**
 ```bash
 # Use a different port
-export FLASK_RUN_PORT=5001
+export FLASK_RUN_PORT=8081
 # or kill the process using the port
-lsof -ti:5000 | xargs kill -9
+lsof -ti:8080 | xargs kill -9
 ```
 
 ### Getting Help
@@ -656,8 +656,8 @@ For high-availability deployments:
 ```nginx
 # nginx.conf
 upstream lakebridge {
-    server 127.0.0.1:5000;
-    server 127.0.0.1:5001;
+    server 127.0.0.1:8080;
+    server 127.0.0.1:8081;
 }
 
 server {

@@ -24,12 +24,12 @@ try:
         print("   • Project Analysis - Analyze existing workloads")
         print("   • Component Installation - Set up Lakebridge components")
         print("")
-        print("🌐 Open your browser and navigate to: http://localhost:5000")
+        print("🌐 Open your browser and navigate to: http://localhost:8080")
         print("⏹️  Press Ctrl+C to stop the server")
         print("")
         
         # Start the Flask application
-        app.run(debug=False, host='0.0.0.0', port=5000)
+        app.run(debug=False, host='0.0.0.0', port=8080)
         
 except ImportError as e:
     print(f"❌ Error importing Lakebridge webapp: {e}")

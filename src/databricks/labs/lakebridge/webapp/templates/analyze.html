@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+
+{% block title %}Project Analysis - Lakebridge{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">
+                    <i class="fas fa-chart-line text-success me-2"></i>Project Analysis
+                </h2>
+                <p class="text-muted">Analyze your existing workloads and get detailed migration insights</p>
+            </div>
+            
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <form id="analyzeForm" enctype="multipart/form-data">
+                        <div class="mb-4">
+                            <label for="source_system" class="form-label fw-bold">Source System</label>
+                            <select class="form-select" id="source_system" name="source_system" required>
+                                <option value="">Select source system...</option>
+                                {% for system in supported_systems %}
+                                <option value="{{ system }}">{{ system.title() }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text">Choose the source system you're analyzing</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="project_files" class="form-label fw-bold">Project Files</label>
+                            <div class="upload-area" id="uploadArea">
+                                <div class="upload-content">
+                                    <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                                    <h5>Drop your project files here or click to browse</h5>
+                                    <p class="text-muted">Select multiple SQL files, scripts, or project archives (Max 50MB each)</p>
+                                    <input type="file" class="form-control d-none" id="project_files" name="project_files" 
+                                           accept=".sql,.txt,.zip,.tar,.gz" multiple required>
+                                </div>
+                                <div class="file-list d-none" id="fileList">
+                                    <h6 class="fw-bold mb-3">Selected Files:</h6>
+                                    <div id="fileItems"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success btn-lg" id="analyzeBtn">
+                                <span class="spinner spinner-border spinner-border-sm me-2" id="analyzeSpinner"></span>
+                                <i class="fas fa-chart-line me-2"></i>Analyze Project
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="result-panel d-none" id="resultPanel">
+                <h5 class="fw-bold mb-3">
+                    <i class="fas fa-chart-bar text-success me-2"></i>Analysis Result
+                </h5>
+                <div id="resultContent"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('project_files');
+    const fileList = document.getElementById('fileList');
+    const uploadContent = uploadArea.querySelector('.upload-content');
+    const analyzeForm = document.getElementById('analyzeForm');
+    const resultPanel = document.getElementById('resultPanel');
+    
+    // File upload handling
+    uploadArea.addEventListener('click', () => fileInput.click());
+    
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+    
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('dragover');
+    });
+    
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            showFileList(files);
+        }
+    });
+    
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            showFileList(e.target.files);
+        }
+    });
+    
+    function showFileList(files) {
+        const fileItems = document.getElementById('fileItems');
+        fileItems.innerHTML = '';
+        
+        Array.from(files).forEach((file, index) => {
+            const fileItem = document.createElement('div');
+            fileItem.className = 'file-item d-flex justify-content-between align-items-center p-2 mb-2 bg-light rounded';
+            fileItem.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-file-code text-primary me-2"></i>
+                    <div>
+                        <div class="fw-bold">${file.name}</div>
+                        <small class="text-muted">${formatFileSize(file.size)}</small>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeFile(${index})">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            fileItems.appendChild(fileItem);
+        });
+        
+        uploadContent.classList.add('d-none');
+        fileList.classList.remove('d-none');
+    }
+    
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+    
+    // Form submission
+    analyzeForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const spinner = document.getElementById('analyzeSpinner');
+        
+        // Show loading state
+        analyzeBtn.disabled = true;
+        spinner.style.display = 'inline-block';
+        resultPanel.classList.add('d-none');
+        
+        try {
+            const formData = new FormData(analyzeForm);
+            const response = await fetch('/analyze', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            showResult(result);
+        } catch (error) {
+            showResult({
+                success: false,
+                message: 'Network error occurred',
+                errors: [error.message]
+            });
+        } finally {
+            // Hide loading state
+            analyzeBtn.disabled = false;
+            spinner.style.display = 'none';
+        }
+    });
+    
+    function showResult(result) {
+        const resultContent = document.getElementById('resultContent');
+        
+        if (result.success) {
+            resultContent.innerHTML = `
+                <div class="alert alert-success">
+                    <strong>Success!</strong> ${result.message}
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="card-title">
+                                    <i class="fas fa-folder text-primary me-2"></i>Source System
+                                </h6>
+                                <p class="card-text fs-5 fw-bold text-primary">${result.source_system}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h6 class="card-title">
+                                    <i class="fas fa-file-code text-success me-2"></i>Files Analyzed
+                                </h6>
+                                <p class="card-text fs-5 fw-bold text-success">${result.files_analyzed}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-title">
+                            <i class="fas fa-info-circle text-info me-2"></i>Analysis Details
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Source Directory:</strong><br>
+                                <code>${result.source_directory}</code></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Output Directory:</strong><br>
+                                <code>${result.output_directory}</code></p>
+                            </div>
+                        </div>
+                        <div class="alert alert-info">
+                            <i class="fas fa-lightbulb me-2"></i>
+                            <strong>Next Steps:</strong> Review the analysis results and use the transpilation tool to convert your SQL files to Databricks format.
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else {
+            resultContent.innerHTML = `
+                <div class="alert alert-danger">
+                    <strong>Error!</strong> ${result.message}
+                </div>
+                ${result.errors && result.errors.length > 0 ? `
+                    <div class="alert alert-danger">
+                        <strong>Details:</strong>
+                        <ul class="mb-0 mt-2">
+                            ${result.errors.map(e => `<li>${escapeHtml(e)}</li>`).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
+            `;
+        }
+        
+        resultPanel.classList.remove('d-none');
+        resultPanel.scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    // Global function for removing files
+    window.removeFile = function(index) {
+        const dt = new DataTransfer();
+        const files = fileInput.files;
+        
+        for (let i = 0; i < files.length; i++) {
+            if (i !== index) {
+                dt.items.add(files[i]);
+            }
+        }
+        
+        fileInput.files = dt.files;
+        
+        if (dt.files.length === 0) {
+            uploadContent.classList.remove('d-none');
+            fileList.classList.add('d-none');
+        } else {
+            showFileList(dt.files);
+        }
+    };
+});
+</script>
+{% endblock %}

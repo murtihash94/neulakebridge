@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block title %}Component Installation - Lakebridge{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">
+                    <i class="fas fa-download text-info me-2"></i>Component Installation
+                </h2>
+                <p class="text-muted">Install and configure Lakebridge transpilers and dependencies</p>
+            </div>
+            
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <div class="mb-4">
+                        <h5 class="fw-bold">
+                            <i class="fas fa-info-circle text-primary me-2"></i>Installation Overview
+                        </h5>
+                        <p>
+                            Lakebridge requires several components to be installed for full functionality. 
+                            This includes transpilers for different source systems and their dependencies.
+                        </p>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card bg-light h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <i class="fas fa-exchange-alt text-primary me-2"></i>Transpilers
+                                    </h6>
+                                    <ul class="mb-0">
+                                        <li>SQLGlot Engine</li>
+                                        <li>Custom SQL Processors</li>
+                                        <li>Dialect Converters</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-light h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <i class="fas fa-cogs text-success me-2"></i>Dependencies
+                                    </h6>
+                                    <ul class="mb-0">
+                                        <li>Analysis Tools</li>
+                                        <li>Database Connectors</li>
+                                        <li>Reconciliation Modules</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="button" class="btn btn-info btn-lg" id="installBtn" onclick="installComponents()">
+                            <span class="spinner spinner-border spinner-border-sm me-2" id="installSpinner"></span>
+                            <i class="fas fa-download me-2"></i>Install Components
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="result-panel d-none" id="resultPanel">
+                <h5 class="fw-bold mb-3">
+                    <i class="fas fa-check-circle text-success me-2"></i>Installation Result
+                </h5>
+                <div id="resultContent"></div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5 class="fw-bold">
+                        <i class="fas fa-terminal text-dark me-2"></i>Manual Installation
+                    </h5>
+                    <p>You can also install Lakebridge components manually using the command line:</p>
+                    
+                    <div class="mb-3">
+                        <h6>1. Install Python Package</h6>
+                        <div class="code-display">pip install databricks-labs-lakebridge</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6>2. Install Transpilers</h6>
+                        <div class="code-display">lakebridge install-transpile</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6>3. Configure Reconciliation (Optional)</h6>
+                        <div class="code-display">lakebridge configure-reconcile</div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-book me-2"></i>
+                        <strong>Documentation:</strong> For detailed installation instructions, visit 
+                        <a href="https://databrickslabs.github.io/lakebridge/docs/installation/" target="_blank">
+                            the official documentation
+                        </a>.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function installComponents() {
+    const installBtn = document.getElementById('installBtn');
+    const spinner = document.getElementById('installSpinner');
+    const resultPanel = document.getElementById('resultPanel');
+    
+    // Show loading state
+    installBtn.disabled = true;
+    spinner.style.display = 'inline-block';
+    resultPanel.classList.add('d-none');
+    
+    try {
+        const response = await fetch('/install', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const result = await response.json();
+        showResult(result);
+    } catch (error) {
+        showResult({
+            success: false,
+            message: 'Network error occurred',
+            errors: [error.message]
+        });
+    } finally {
+        // Hide loading state
+        installBtn.disabled = false;
+        spinner.style.display = 'none';
+    }
+}
+
+function showResult(result) {
+    const resultContent = document.getElementById('resultContent');
+    const resultPanel = document.getElementById('resultPanel');
+    
+    if (result.success) {
+        resultContent.innerHTML = `
+            <div class="alert alert-success">
+                <strong>Success!</strong> ${result.message}
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        <i class="fas fa-check-circle text-success me-2"></i>Installation Complete
+                    </h6>
+                    <p class="card-text">${result.details}</p>
+                    <div class="alert alert-info">
+                        <i class="fas fa-rocket me-2"></i>
+                        <strong>Ready to go!</strong> You can now use the transpilation and analysis features.
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="/transpile" class="btn btn-primary">
+                            <i class="fas fa-exchange-alt me-1"></i>Start Transpiling
+                        </a>
+                        <a href="/analyze" class="btn btn-success">
+                            <i class="fas fa-chart-line me-1"></i>Analyze Project
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `;
+    } else {
+        resultContent.innerHTML = `
+            <div class="alert alert-danger">
+                <strong>Error!</strong> ${result.message}
+            </div>
+            ${result.errors && result.errors.length > 0 ? `
+                <div class="alert alert-danger">
+                    <strong>Details:</strong>
+                    <ul class="mb-0 mt-2">
+                        ${result.errors.map(e => `<li>${escapeHtml(e)}</li>`).join('')}
+                    </ul>
+                </div>
+            ` : ''}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Tip:</strong> Try the manual installation method using the command line instructions above.
+            </div>
+        `;
+    }
+    
+    resultPanel.classList.remove('d-none');
+    resultPanel.scrollIntoView({ behavior: 'smooth' });
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+</script>
+{% endblock %}

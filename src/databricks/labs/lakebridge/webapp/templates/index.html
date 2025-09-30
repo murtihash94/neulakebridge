@@ -39,14 +39,14 @@
             <div class="card feature-card h-100 shadow-sm">
                 <div class="card-body text-center p-4">
                     <div class="mb-3">
-                        <i class="fas fa-exchange-alt fa-3x" style="color: #1a4d7a;"></i>
+                        <i class="fas fa-exchange-alt fa-3x" style="color: #2563eb;"></i>
                     </div>
                     <h5 class="card-title">SQL Transpilation</h5>
                     <p class="card-text">
                         Convert SQL from various source systems to Databricks SQL dialect. 
                         Supports Snowflake, Teradata, Oracle, SQL Server, and more.
                     </p>
-                    <a href="{{ url_for('transpile') }}" class="btn btn-primary" style="background-color: #1a4d7a; border-color: #1a4d7a;">
+                    <a href="{{ url_for('transpile') }}" class="btn btn-primary" style="background-color: #2563eb; border-color: #2563eb;">
                         <i class="fas fa-arrow-right me-1"></i>Transpile SQL
                     </a>
                 </div>
@@ -57,14 +57,14 @@
             <div class="card feature-card h-100 shadow-sm">
                 <div class="card-body text-center p-4">
                     <div class="mb-3">
-                        <i class="fas fa-chart-line fa-3x" style="color: #28a745;"></i>
+                        <i class="fas fa-chart-line fa-3x" style="color: #3d8fcf;"></i>
                     </div>
                     <h5 class="card-title">Project Analysis</h5>
                     <p class="card-text">
                         Analyze your existing workloads and get detailed migration insights. 
                         Understand complexity and migration readiness.
                     </p>
-                    <a href="{{ url_for('analyze') }}" class="btn btn-success">
+                    <a href="{{ url_for('analyze') }}" class="btn" style="background-color: #3d8fcf; border-color: #3d8fcf; color: white;">
                         <i class="fas fa-search me-1"></i>Analyze Project
                     </a>
                 </div>
@@ -75,14 +75,14 @@
             <div class="card feature-card h-100 shadow-sm">
                 <div class="card-body text-center p-4">
                     <div class="mb-3">
-                        <i class="fas fa-project-diagram fa-3x" style="color: #ff6b35;"></i>
+                        <i class="fas fa-project-diagram fa-3x" style="color: #1a4d7a;"></i>
                     </div>
                     <h5 class="card-title">SSIS Migration</h5>
                     <p class="card-text">
                         Migrate SQL Server Integration Services (SSIS) packages to Databricks workflows. 
                         Convert ETL packages to modern data pipelines.
                     </p>
-                    <a href="{{ url_for('ssis_migrate') }}" class="btn" style="background-color: #ff6b35; border-color: #ff6b35; color: white;">
+                    <a href="{{ url_for('ssis_migrate') }}" class="btn" style="background-color: #1a4d7a; border-color: #1a4d7a; color: white;">
                         <i class="fas fa-rocket me-1"></i>Migrate SSIS
                     </a>
                 </div>
@@ -93,14 +93,14 @@
             <div class="card feature-card h-100 shadow-sm">
                 <div class="card-body text-center p-4">
                     <div class="mb-3">
-                        <i class="fas fa-download fa-3x text-info"></i>
+                        <i class="fas fa-download fa-3x" style="color: #60a5fa;"></i>
                     </div>
                     <h5 class="card-title">Component Installation</h5>
                     <p class="card-text">
                         Install and configure Lakebridge transpilers and dependencies. 
                         Get everything ready for your migration journey.
                     </p>
-                    <a href="{{ url_for('install') }}" class="btn btn-info">
+                    <a href="{{ url_for('install') }}" class="btn" style="background-color: #60a5fa; border-color: #60a5fa; color: white;">
                         <i class="fas fa-cog me-1"></i>Install Components
                     </a>
                 </div>
@@ -139,10 +139,10 @@
                     to the Databricks Lakehouse Platform.
                 </p>
                 <div class="d-flex justify-content-center gap-3">
-                    <a href="{{ url_for('transpile') }}" class="btn btn-lg" style="background-color: #1a4d7a; border-color: #1a4d7a; color: white;">
+                    <a href="{{ url_for('transpile') }}" class="btn btn-lg" style="background-color: #2563eb; border-color: #2563eb; color: white;">
                         <i class="fas fa-play-circle me-2"></i>Get Started Now
                     </a>
-                    <a href="https://databrickslabs.github.io/lakebridge/" class="btn btn-outline-primary btn-lg" target="_blank" style="border-color: #1a4d7a; color: #1a4d7a;">
+                    <a href="https://databrickslabs.github.io/lakebridge/" class="btn btn-outline-light btn-lg" target="_blank">
                         <i class="fas fa-book me-2"></i>View Documentation
                     </a>
                 </div>

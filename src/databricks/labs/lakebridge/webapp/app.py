@@ -46,6 +46,179 @@ def index():
     """Landing page with logo and main options"""
     return render_template('index.html', supported_systems=SUPPORTED_SYSTEMS)
 
+@app.route('/designer')
+def designer():
+    """Visual designer page for agents and tasks"""
+    # Sample agents data
+    agents = [
+        {
+            'id': 1,
+            'name': 'SQL Transpiler Agent',
+            'description': 'Automatically converts SQL queries from various dialects to Databricks SQL',
+            'type': 'Transpilation',
+            'status': 'Active',
+            'icon': 'fa-exchange-alt',
+            'color_start': '#2563eb',
+            'color_end': '#1d4ed8',
+            'task_count': 12,
+            'last_run': '2 hours ago'
+        },
+        {
+            'id': 2,
+            'name': 'Schema Migration Agent',
+            'description': 'Migrates database schemas and table definitions to Databricks',
+            'type': 'Schema',
+            'status': 'Active',
+            'icon': 'fa-database',
+            'color_start': '#3d8fcf',
+            'color_end': '#2563eb',
+            'task_count': 8,
+            'last_run': '1 day ago'
+        },
+        {
+            'id': 3,
+            'name': 'ETL Workflow Agent',
+            'description': 'Converts ETL workflows and orchestration jobs to Databricks workflows',
+            'type': 'Workflow',
+            'status': 'Active',
+            'icon': 'fa-project-diagram',
+            'color_start': '#1a4d7a',
+            'color_end': '#0f2a4a',
+            'task_count': 15,
+            'last_run': '3 hours ago'
+        },
+        {
+            'id': 4,
+            'name': 'Data Quality Agent',
+            'description': 'Validates data quality and ensures migration accuracy',
+            'type': 'Quality',
+            'status': 'Idle',
+            'icon': 'fa-check-circle',
+            'color_start': '#60a5fa',
+            'color_end': '#3d8fcf',
+            'task_count': 5,
+            'last_run': '5 days ago'
+        },
+        {
+            'id': 5,
+            'name': 'Performance Optimizer',
+            'description': 'Analyzes and optimizes query performance for Databricks',
+            'type': 'Optimization',
+            'status': 'Active',
+            'icon': 'fa-tachometer-alt',
+            'color_start': '#0a1929',
+            'color_end': '#1a4d7a',
+            'task_count': 7,
+            'last_run': '6 hours ago'
+        },
+        {
+            'id': 6,
+            'name': 'Reconciliation Agent',
+            'description': 'Compares source and target data to ensure migration completeness',
+            'type': 'Validation',
+            'status': 'Active',
+            'icon': 'fa-balance-scale',
+            'color_start': '#2563eb',
+            'color_end': '#60a5fa',
+            'task_count': 10,
+            'last_run': '30 minutes ago'
+        }
+    ]
+    
+    # Sample tasks data
+    tasks = [
+        {
+            'id': 1,
+            'name': 'Transpile Snowflake Views',
+            'agent_name': 'SQL Transpiler Agent',
+            'agent_color': '#2563eb',
+            'type': 'SQL Transpilation',
+            'status': 'Completed',
+            'status_icon': 'fa-check-circle',
+            'status_color': '#10b981',
+            'progress': 100
+        },
+        {
+            'id': 2,
+            'name': 'Migrate Customer Schema',
+            'agent_name': 'Schema Migration Agent',
+            'agent_color': '#3d8fcf',
+            'type': 'Schema Migration',
+            'status': 'In Progress',
+            'status_icon': 'fa-spinner',
+            'status_color': '#f59e0b',
+            'progress': 65
+        },
+        {
+            'id': 3,
+            'name': 'Convert SSIS Package - Daily Load',
+            'agent_name': 'ETL Workflow Agent',
+            'agent_color': '#1a4d7a',
+            'type': 'Workflow Conversion',
+            'status': 'In Progress',
+            'status_icon': 'fa-spinner',
+            'status_color': '#f59e0b',
+            'progress': 45
+        },
+        {
+            'id': 4,
+            'name': 'Validate Sales Data',
+            'agent_name': 'Data Quality Agent',
+            'agent_color': '#60a5fa',
+            'type': 'Data Validation',
+            'status': 'Pending',
+            'status_icon': 'fa-clock',
+            'status_color': '#6b7280',
+            'progress': 0
+        },
+        {
+            'id': 5,
+            'name': 'Optimize Report Queries',
+            'agent_name': 'Performance Optimizer',
+            'agent_color': '#0a1929',
+            'type': 'Performance Tuning',
+            'status': 'Completed',
+            'status_icon': 'fa-check-circle',
+            'status_color': '#10b981',
+            'progress': 100
+        },
+        {
+            'id': 6,
+            'name': 'Reconcile Inventory Tables',
+            'agent_name': 'Reconciliation Agent',
+            'agent_color': '#2563eb',
+            'type': 'Data Reconciliation',
+            'status': 'In Progress',
+            'status_icon': 'fa-spinner',
+            'status_color': '#f59e0b',
+            'progress': 80
+        },
+        {
+            'id': 7,
+            'name': 'Transpile Oracle Procedures',
+            'agent_name': 'SQL Transpiler Agent',
+            'agent_color': '#2563eb',
+            'type': 'SQL Transpilation',
+            'status': 'Pending',
+            'status_icon': 'fa-clock',
+            'status_color': '#6b7280',
+            'progress': 0
+        },
+        {
+            'id': 8,
+            'name': 'Migrate Analytics Workflows',
+            'agent_name': 'ETL Workflow Agent',
+            'agent_color': '#1a4d7a',
+            'type': 'Workflow Conversion',
+            'status': 'Completed',
+            'status_icon': 'fa-check-circle',
+            'status_color': '#10b981',
+            'progress': 100
+        }
+    ]
+    
+    return render_template('designer.html', agents=agents, tasks=tasks)
+
 @app.route('/transpile', methods=['GET', 'POST'])
 def transpile():
     """Handle SQL transpilation"""

@@ -103,6 +103,7 @@ const config: Config = {
             { label: 'Assessment', to: '/docs/assessment/', },
             { label: 'Transpiler', to: '/docs/transpile/', },
             { label: 'Reconciler', to: '/docs/reconcile/', },
+            { label: 'SSIS Migration', to: '/docs/ssis-migration/', },
           ],
         },
         {

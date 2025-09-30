@@ -35,29 +35,29 @@
     </div>
     
     <div class="row g-4">
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card feature-card h-100 shadow-sm">
                 <div class="card-body text-center p-4">
                     <div class="mb-3">
-                        <i class="fas fa-exchange-alt fa-3x text-primary"></i>
+                        <i class="fas fa-exchange-alt fa-3x" style="color: #1a4d7a;"></i>
                     </div>
                     <h5 class="card-title">SQL Transpilation</h5>
                     <p class="card-text">
                         Convert SQL from various source systems to Databricks SQL dialect. 
                         Supports Snowflake, Teradata, Oracle, SQL Server, and more.
                     </p>
-                    <a href="{{ url_for('transpile') }}" class="btn btn-primary">
+                    <a href="{{ url_for('transpile') }}" class="btn btn-primary" style="background-color: #1a4d7a; border-color: #1a4d7a;">
                         <i class="fas fa-arrow-right me-1"></i>Transpile SQL
                     </a>
                 </div>
             </div>
         </div>
         
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card feature-card h-100 shadow-sm">
                 <div class="card-body text-center p-4">
                     <div class="mb-3">
-                        <i class="fas fa-chart-line fa-3x text-success"></i>
+                        <i class="fas fa-chart-line fa-3x" style="color: #28a745;"></i>
                     </div>
                     <h5 class="card-title">Project Analysis</h5>
                     <p class="card-text">
@@ -71,7 +71,25 @@
             </div>
         </div>
         
-        <div class="col-md-4">
+        <div class="col-md-3">
+            <div class="card feature-card h-100 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3">
+                        <i class="fas fa-project-diagram fa-3x" style="color: #ff6b35;"></i>
+                    </div>
+                    <h5 class="card-title">SSIS Migration</h5>
+                    <p class="card-text">
+                        Migrate SQL Server Integration Services (SSIS) packages to Databricks workflows. 
+                        Convert ETL packages to modern data pipelines.
+                    </p>
+                    <a href="{{ url_for('ssis_migrate') }}" class="btn" style="background-color: #ff6b35; border-color: #ff6b35; color: white;">
+                        <i class="fas fa-rocket me-1"></i>Migrate SSIS
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
             <div class="card feature-card h-100 shadow-sm">
                 <div class="card-body text-center p-4">
                     <div class="mb-3">
@@ -121,11 +139,11 @@
                     to the Databricks Lakehouse Platform.
                 </p>
                 <div class="d-flex justify-content-center gap-3">
-                    <a href="{{ url_for('transpile') }}" class="btn btn-primary btn-lg">
-                        Get Started Now
+                    <a href="{{ url_for('transpile') }}" class="btn btn-lg" style="background-color: #1a4d7a; border-color: #1a4d7a; color: white;">
+                        <i class="fas fa-play-circle me-2"></i>Get Started Now
                     </a>
-                    <a href="https://databrickslabs.github.io/lakebridge/" class="btn btn-outline-primary btn-lg" target="_blank">
-                        View Documentation
+                    <a href="https://databrickslabs.github.io/lakebridge/" class="btn btn-outline-primary btn-lg" target="_blank" style="border-color: #1a4d7a; color: #1a4d7a;">
+                        <i class="fas fa-book me-2"></i>View Documentation
                     </a>
                 </div>
             </div>

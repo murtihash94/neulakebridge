@@ -50,7 +50,7 @@ def test_flask_routes():
         from app import app
         
         # Test that routes exist
-        required_routes = ['/', '/transpile', '/analyze', '/install', '/ssis_migrate', '/api/status']
+        required_routes = ['/', '/transpile', '/analyze', '/designer', '/install', '/ssis_migrate', '/api/status']
         registered_routes = [rule.rule for rule in app.url_map.iter_rules()]
         
         for route in required_routes:

@@ -12,7 +12,7 @@
             max-width: 200px;
         }
         .hero-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0f2a4a 0%, #1a4d7a 100%);
             color: white;
             padding: 4rem 0;
         }
@@ -66,7 +66,7 @@
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #0f2a4a;">
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('index') }}">
                 <img src="{{ url_for('static', filename='lakebridge-lockup.png') }}" alt="Lakebridge" class="logo">
@@ -77,16 +77,29 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('index') }}">Home</a>
+                        <a class="nav-link" href="{{ url_for('index') }}">
+                            <i class="fas fa-home me-1"></i>Home
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('transpile') }}">Transpile</a>
+                        <a class="nav-link" href="{{ url_for('transpile') }}">
+                            <i class="fas fa-exchange-alt me-1"></i>Transpile
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('analyze') }}">Analyze</a>
+                        <a class="nav-link" href="{{ url_for('analyze') }}">
+                            <i class="fas fa-chart-line me-1"></i>Analyze
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('install') }}">Install</a>
+                        <a class="nav-link" href="{{ url_for('ssis_migrate') }}">
+                            <i class="fas fa-project-diagram me-1"></i>SSIS Migration
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('install') }}">
+                            <i class="fas fa-download me-1"></i>Install
+                        </a>
                     </li>
                 </ul>
             </div>
@@ -110,12 +123,16 @@
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="bg-dark text-white text-center py-4 mt-5">
+    <footer class="text-white text-center py-4 mt-5" style="background-color: #0f2a4a;">
         <div class="container">
             <p>&copy; 2024 Databricks Labs Lakebridge. Fast and predictable migrations to Databricks.</p>
             <p>
-                <a href="https://databrickslabs.github.io/lakebridge/" class="text-white-50">Documentation</a> |
-                <a href="https://github.com/databrickslabs/lakebridge" class="text-white-50">GitHub</a>
+                <a href="https://databrickslabs.github.io/lakebridge/" class="text-white-50">
+                    <i class="fas fa-book me-1"></i>Documentation
+                </a> |
+                <a href="https://github.com/databrickslabs/lakebridge" class="text-white-50">
+                    <i class="fab fa-github me-1"></i>GitHub
+                </a>
             </p>
         </div>
     </footer>

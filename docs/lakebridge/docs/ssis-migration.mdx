@@ -1,0 +1,157 @@
+---
+title: SSIS Migration
+sidebar_position: 5
+---
+
+# SSIS Migration
+
+The SSIS Migration tool helps you convert SQL Server Integration Services (SSIS) packages to Databricks workflows and modern data pipelines.
+
+## Overview
+
+SSIS Migration analyzes your existing SSIS packages and converts them to equivalent Databricks workflows using:
+- **Databricks Notebooks** for data transformation logic
+- **Delta Lake** for data storage and management
+- **Databricks Workflows** for orchestration
+- **Databricks SQL** for SQL-based transformations
+
+## Supported Features
+
+### Control Flow Components
+
+- **Execute SQL Tasks** → Converted to Databricks SQL queries
+- **Data Flow Tasks** → Converted to Delta Lake ETL pipelines
+- **For Each Loop Containers** → Converted to Databricks Workflow loops
+- **Sequence Containers** → Converted to Databricks task groups
+- **Script Tasks** → Converted to Python notebooks
+
+### Data Flow Components
+
+- **Source Components** → Delta tables or external tables
+- **Transformation Components** → Spark SQL or Python transformations
+- **Destination Components** → Delta table writes
+- **Lookup Components** → SQL joins or merge operations
+- **Aggregate Components** → Spark aggregation functions
+
+### Connection Managers
+
+- **OLE DB** → JDBC connections or Delta tables
+- **ADO.NET** → JDBC connections
+- **Flat File** → CSV/Parquet files on DBFS
+- **Excel** → Delta tables (via Pandas)
+
+### Additional Features
+
+- **Variables** → Databricks widgets or secrets
+- **Parameters** → Workflow parameters
+- **Event Handlers** → Error handling in notebooks
+- **Logging** → Databricks audit logs and custom logging
+
+## Usage
+
+### Web Application
+
+1. Navigate to the **SSIS Migration** page in the Lakebridge web application
+2. Select your package type (DTSX, ISPAC, or folder)
+3. Upload your SSIS package file
+4. Configure migration options:
+   - Convert Control Flow
+   - Convert Data Flow
+   - Convert SQL Tasks
+   - Generate Notebooks
+   - Create Workflow Definition
+5. Click **Start Migration** to begin the conversion
+
+### Migration Options
+
+#### Convert Control Flow
+Converts the control flow logic including tasks, containers, and precedence constraints to Databricks workflow tasks.
+
+#### Convert Data Flow
+Analyzes data flow tasks and converts them to Delta Lake ETL pipelines using Spark SQL and Python.
+
+#### Convert SQL Tasks
+Transpiles SQL queries from SQL Server dialect to Databricks SQL dialect.
+
+#### Generate Notebooks
+Creates Python notebooks containing the converted logic for data transformations.
+
+#### Create Workflow Definition
+Generates a Databricks workflow JSON definition that can be imported into your workspace.
+
+## Output Artifacts
+
+The migration process generates the following artifacts:
+
+1. **Python Notebooks** - Contains the converted ETL logic
+2. **SQL Files** - Converted SQL queries in Databricks dialect
+3. **Workflow Definition** - JSON file defining the workflow structure
+4. **Configuration Files** - Connection strings and parameters
+5. **Migration Report** - Detailed report of the conversion process
+
+## Best Practices
+
+### Before Migration
+
+1. **Inventory your packages** - List all SSIS packages and their dependencies
+2. **Review custom scripts** - Identify complex Script Tasks that may need manual review
+3. **Document connections** - List all connection managers and credentials
+4. **Test in development** - Always test migrations in a development environment first
+
+### After Migration
+
+1. **Review generated notebooks** - Verify the converted logic matches your expectations
+2. **Update connections** - Configure Databricks connections and secrets
+3. **Test workflows** - Run the workflows with test data
+4. **Performance tuning** - Optimize Spark settings for your workload
+5. **Schedule workflows** - Set up workflow scheduling in Databricks
+
+## Limitations
+
+- Custom .NET assemblies in Script Components require manual conversion
+- Third-party SSIS components are not automatically converted
+- Complex event handlers may need manual review
+- Some legacy connection types may require alternative approaches
+
+## Example: Migrating a Simple SSIS Package
+
+```xml
+<!-- Original SSIS Package (simplified) -->
+<DTS:Executable
+  DTS:ExecutableType="ExecuteSQLTask">
+  <DTS:Property
+    DTS:Name="SqlStatementSource">
+    SELECT * FROM SourceTable WHERE Date > GETDATE() - 1
+  </DTS:Property>
+</DTS:Executable>
+```
+
+After migration, this becomes:
+
+```python
+# Generated Databricks Notebook
+from pyspark.sql import SparkSession
+from datetime import datetime, timedelta
+
+# Read source data
+df = spark.sql("""
+    SELECT * FROM source_table
+    WHERE date > current_date() - INTERVAL 1 DAY
+""")
+
+# Write to Delta table
+df.write.format("delta").mode("overwrite").saveAsTable("target_table")
+```
+
+## Support
+
+For issues or questions about SSIS migration:
+- Review the [FAQ](/docs/faq)
+- Check the [GitHub repository](https://github.com/databrickslabs/lakebridge)
+- Contact Databricks Labs support
+
+## See Also
+
+- [SQL Transpilation](/docs/transpile/)
+- [Project Analysis](/docs/assessment/)
+- [Workflow Orchestration](https://docs.databricks.com/workflows/)

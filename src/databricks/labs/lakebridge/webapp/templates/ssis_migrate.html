@@ -1,0 +1,296 @@
+{% extends "base.html" %}
+
+{% block title %}SSIS Migration - Lakebridge{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="text-center mb-4">
+                <i class="fas fa-project-diagram fa-4x mb-3" style="color: #ff6b35;"></i>
+                <h1 class="display-5 fw-bold">SSIS Package Migration</h1>
+                <p class="lead text-muted">
+                    Convert SQL Server Integration Services (SSIS) packages to Databricks workflows and modern data pipelines.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow">
+                <div class="card-header" style="background-color: #1a4d7a; color: white;">
+                    <h5 class="mb-0">
+                        <i class="fas fa-upload me-2"></i>Upload SSIS Package
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="ssisForm" enctype="multipart/form-data">
+                        <div class="mb-4">
+                            <label for="packageType" class="form-label fw-bold">
+                                <i class="fas fa-cube me-1"></i>Package Type
+                            </label>
+                            <select class="form-select" id="packageType" name="package_type" required>
+                                <option value="" selected disabled>Select package type...</option>
+                                <option value="dtsx">DTSX Package (.dtsx)</option>
+                                <option value="ispac">Integration Services Project (.ispac)</option>
+                                <option value="folder">Package Folder (zip)</option>
+                            </select>
+                            <div class="form-text">Choose the type of SSIS package you want to migrate</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="ssisFile" class="form-label fw-bold">
+                                <i class="fas fa-file-upload me-1"></i>SSIS Package File
+                            </label>
+                            <div class="upload-area" id="uploadArea">
+                                <i class="fas fa-cloud-upload-alt fa-3x mb-3 text-muted"></i>
+                                <p class="mb-2">Drag and drop your SSIS package here</p>
+                                <p class="text-muted small">or click to browse</p>
+                                <input type="file" class="form-control d-none" id="ssisFile" name="ssis_file" accept=".dtsx,.ispac,.zip" required>
+                            </div>
+                            <div id="fileName" class="mt-2 text-muted small"></div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-cogs me-1"></i>Migration Options
+                            </label>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="convertControlFlow" name="convert_control_flow" checked>
+                                <label class="form-check-label" for="convertControlFlow">
+                                    Convert Control Flow to Databricks Workflows
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="convertDataFlow" name="convert_data_flow" checked>
+                                <label class="form-check-label" for="convertDataFlow">
+                                    Convert Data Flow to Delta Lake pipelines
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="convertSQLTasks" name="convert_sql_tasks" checked>
+                                <label class="form-check-label" for="convertSQLTasks">
+                                    Convert SQL Tasks to Databricks SQL
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="generateNotebooks" name="generate_notebooks" checked>
+                                <label class="form-check-label" for="generateNotebooks">
+                                    Generate Databricks Notebooks
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="createWorkflow" name="create_workflow" checked>
+                                <label class="form-check-label" for="createWorkflow">
+                                    Create Databricks Workflow Definition
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="targetPath" class="form-label fw-bold">
+                                <i class="fas fa-folder me-1"></i>Target Workspace Path (Optional)
+                            </label>
+                            <input type="text" class="form-control" id="targetPath" name="target_path" placeholder="/Workspace/Users/your.email@company.com/migrations">
+                            <div class="form-text">Databricks workspace path where the migrated artifacts will be created</div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-lg" style="background-color: #ff6b35; border-color: #ff6b35; color: white;">
+                                <i class="fas fa-rocket me-2"></i>Start Migration
+                            </button>
+                        </div>
+                    </form>
+
+                    <div id="spinner" class="spinner text-center mt-4">
+                        <div class="spinner-border" style="color: #ff6b35;" role="status">
+                            <span class="visually-hidden">Processing...</span>
+                        </div>
+                        <p class="mt-2">Analyzing and converting SSIS package...</p>
+                    </div>
+
+                    <div id="resultPanel" class="result-panel mt-4" style="display: none;">
+                        <h5 class="mb-3">
+                            <i class="fas fa-check-circle text-success me-2"></i>Migration Results
+                        </h5>
+                        <div id="resultContent"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-md-10 mx-auto">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-info-circle me-2" style="color: #1a4d7a;"></i>What gets migrated?
+                    </h5>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <h6 class="fw-bold"><i class="fas fa-sitemap me-2 text-primary"></i>Control Flow</h6>
+                            <ul class="small">
+                                <li>Execute SQL Tasks → Databricks SQL Queries</li>
+                                <li>Data Flow Tasks → Delta Lake ETL</li>
+                                <li>For Each Loop → Databricks Workflows</li>
+                                <li>Sequence Containers → Task Groups</li>
+                                <li>Script Tasks → Python Notebooks</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="fw-bold"><i class="fas fa-stream me-2 text-success"></i>Data Flow</h6>
+                            <ul class="small">
+                                <li>Source → Delta/External Tables</li>
+                                <li>Transformations → Spark SQL/Python</li>
+                                <li>Destination → Delta Tables</li>
+                                <li>Lookups → Joins/Merge Operations</li>
+                                <li>Aggregations → Spark Aggregations</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <h6 class="fw-bold"><i class="fas fa-database me-2 text-info"></i>Connection Managers</h6>
+                            <ul class="small">
+                                <li>OLE DB → JDBC/Delta</li>
+                                <li>ADO.NET → JDBC</li>
+                                <li>Flat File → Delta/CSV on DBFS</li>
+                                <li>Excel → Delta/Pandas</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="fw-bold"><i class="fas fa-cog me-2 text-warning"></i>Additional Features</h6>
+                            <ul class="small">
+                                <li>Variables → Databricks Widgets/Secrets</li>
+                                <li>Parameters → Workflow Parameters</li>
+                                <li>Event Handlers → Error Handling</li>
+                                <li>Logging → Databricks Logs</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('ssisFile');
+    const fileName = document.getElementById('fileName');
+    const ssisForm = document.getElementById('ssisForm');
+    const spinner = document.getElementById('spinner');
+    const resultPanel = document.getElementById('resultPanel');
+    const resultContent = document.getElementById('resultContent');
+
+    // Upload area click handler
+    uploadArea.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    // File selection handler
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            fileName.textContent = `Selected: ${e.target.files[0].name}`;
+            uploadArea.classList.add('border-success');
+        }
+    });
+
+    // Drag and drop handlers
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        
+        if (e.dataTransfer.files.length > 0) {
+            fileInput.files = e.dataTransfer.files;
+            fileName.textContent = `Selected: ${e.dataTransfer.files[0].name}`;
+            uploadArea.classList.add('border-success');
+        }
+    });
+
+    // Form submission
+    ssisForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const formData = new FormData(ssisForm);
+        
+        // Show spinner
+        spinner.style.display = 'block';
+        resultPanel.style.display = 'none';
+        
+        try {
+            const response = await fetch('{{ url_for("ssis_migrate") }}', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            // Hide spinner
+            spinner.style.display = 'none';
+            
+            // Show results
+            resultPanel.style.display = 'block';
+            
+            if (result.success) {
+                resultContent.innerHTML = `
+                    <div class="alert alert-success">
+                        <h6 class="alert-heading"><i class="fas fa-check-circle me-2"></i>${result.message}</h6>
+                        <hr>
+                        <p class="mb-0"><strong>Package Type:</strong> ${result.package_type || 'N/A'}</p>
+                        <p class="mb-0"><strong>Tasks Converted:</strong> ${result.tasks_converted || 0}</p>
+                        <p class="mb-0"><strong>Notebooks Generated:</strong> ${result.notebooks_generated || 0}</p>
+                        <p class="mb-0"><strong>Workflows Created:</strong> ${result.workflows_created || 0}</p>
+                        ${result.output_path ? `<p class="mb-0 mt-2"><strong>Output Location:</strong> <code>${result.output_path}</code></p>` : ''}
+                    </div>
+                    <div class="mt-3">
+                        <h6>Generated Artifacts:</h6>
+                        <ul class="list-group">
+                            ${(result.artifacts || []).map(artifact => `
+                                <li class="list-group-item">
+                                    <i class="fas fa-file me-2"></i>${artifact}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+            } else {
+                resultContent.innerHTML = `
+                    <div class="alert alert-danger">
+                        <h6 class="alert-heading"><i class="fas fa-exclamation-circle me-2"></i>Migration Failed</h6>
+                        <hr>
+                        <p class="mb-0">${result.message}</p>
+                        ${result.errors && result.errors.length > 0 ? `
+                            <ul class="mt-2 mb-0">
+                                ${result.errors.map(err => `<li>${err}</li>`).join('')}
+                            </ul>
+                        ` : ''}
+                    </div>
+                `;
+            }
+        } catch (error) {
+            spinner.style.display = 'none';
+            resultPanel.style.display = 'block';
+            resultContent.innerHTML = `
+                <div class="alert alert-danger">
+                    <h6 class="alert-heading"><i class="fas fa-exclamation-circle me-2"></i>Error</h6>
+                    <p class="mb-0">An error occurred: ${error.message}</p>
+                </div>
+            `;
+        }
+    });
+</script>
+{% endblock %}

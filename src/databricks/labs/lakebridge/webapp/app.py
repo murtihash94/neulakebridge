@@ -49,7 +49,7 @@ def index():
 @app.route('/designer')
 def designer():
     """Visual designer page for agents and tasks"""
-    # Sample agents data
+    # Sample agents data - updated with new design system colors
     agents = [
         {
             'id': 1,
@@ -58,8 +58,8 @@ def designer():
             'type': 'Transpilation',
             'status': 'Active',
             'icon': 'fa-exchange-alt',
-            'color_start': '#2563eb',
-            'color_end': '#1d4ed8',
+            'color_start': '#1E88E5',
+            'color_end': '#1E88E5',
             'task_count': 12,
             'last_run': '2 hours ago'
         },
@@ -70,8 +70,8 @@ def designer():
             'type': 'Schema',
             'status': 'Active',
             'icon': 'fa-database',
-            'color_start': '#3d8fcf',
-            'color_end': '#2563eb',
+            'color_start': '#0A2540',
+            'color_end': '#0A2540',
             'task_count': 8,
             'last_run': '1 day ago'
         },
@@ -82,8 +82,8 @@ def designer():
             'type': 'Workflow',
             'status': 'Active',
             'icon': 'fa-project-diagram',
-            'color_start': '#1a4d7a',
-            'color_end': '#0f2a4a',
+            'color_start': '#1E88E5',
+            'color_end': '#1E88E5',
             'task_count': 15,
             'last_run': '3 hours ago'
         },
@@ -94,8 +94,8 @@ def designer():
             'type': 'Quality',
             'status': 'Idle',
             'icon': 'fa-check-circle',
-            'color_start': '#60a5fa',
-            'color_end': '#3d8fcf',
+            'color_start': '#0A2540',
+            'color_end': '#0A2540',
             'task_count': 5,
             'last_run': '5 days ago'
         },
@@ -106,8 +106,8 @@ def designer():
             'type': 'Optimization',
             'status': 'Active',
             'icon': 'fa-tachometer-alt',
-            'color_start': '#0a1929',
-            'color_end': '#1a4d7a',
+            'color_start': '#1E88E5',
+            'color_end': '#1E88E5',
             'task_count': 7,
             'last_run': '6 hours ago'
         },
@@ -118,20 +118,20 @@ def designer():
             'type': 'Validation',
             'status': 'Active',
             'icon': 'fa-balance-scale',
-            'color_start': '#2563eb',
-            'color_end': '#60a5fa',
+            'color_start': '#0A2540',
+            'color_end': '#0A2540',
             'task_count': 10,
             'last_run': '30 minutes ago'
         }
     ]
     
-    # Sample tasks data
+    # Sample tasks data - updated with new design system colors
     tasks = [
         {
             'id': 1,
             'name': 'Transpile Snowflake Views',
             'agent_name': 'SQL Transpiler Agent',
-            'agent_color': '#2563eb',
+            'agent_color': '#1E88E5',
             'type': 'SQL Transpilation',
             'status': 'Completed',
             'status_icon': 'fa-check-circle',
@@ -142,7 +142,7 @@ def designer():
             'id': 2,
             'name': 'Migrate Customer Schema',
             'agent_name': 'Schema Migration Agent',
-            'agent_color': '#3d8fcf',
+            'agent_color': '#0A2540',
             'type': 'Schema Migration',
             'status': 'In Progress',
             'status_icon': 'fa-spinner',
@@ -153,7 +153,7 @@ def designer():
             'id': 3,
             'name': 'Convert SSIS Package - Daily Load',
             'agent_name': 'ETL Workflow Agent',
-            'agent_color': '#1a4d7a',
+            'agent_color': '#1E88E5',
             'type': 'Workflow Conversion',
             'status': 'In Progress',
             'status_icon': 'fa-spinner',
@@ -164,7 +164,7 @@ def designer():
             'id': 4,
             'name': 'Validate Sales Data',
             'agent_name': 'Data Quality Agent',
-            'agent_color': '#60a5fa',
+            'agent_color': '#0A2540',
             'type': 'Data Validation',
             'status': 'Pending',
             'status_icon': 'fa-clock',
@@ -175,7 +175,7 @@ def designer():
             'id': 5,
             'name': 'Optimize Report Queries',
             'agent_name': 'Performance Optimizer',
-            'agent_color': '#0a1929',
+            'agent_color': '#1E88E5',
             'type': 'Performance Tuning',
             'status': 'Completed',
             'status_icon': 'fa-check-circle',
@@ -186,7 +186,7 @@ def designer():
             'id': 6,
             'name': 'Reconcile Inventory Tables',
             'agent_name': 'Reconciliation Agent',
-            'agent_color': '#2563eb',
+            'agent_color': '#0A2540',
             'type': 'Data Reconciliation',
             'status': 'In Progress',
             'status_icon': 'fa-spinner',
@@ -197,7 +197,7 @@ def designer():
             'id': 7,
             'name': 'Transpile Oracle Procedures',
             'agent_name': 'SQL Transpiler Agent',
-            'agent_color': '#2563eb',
+            'agent_color': '#1E88E5',
             'type': 'SQL Transpilation',
             'status': 'Pending',
             'status_icon': 'fa-clock',

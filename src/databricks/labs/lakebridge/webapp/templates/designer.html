@@ -241,14 +241,29 @@
         border-radius: 8px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
         transition: box-shadow 150ms ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
     }
     
     .agent-card {
         transition: all 150ms ease;
+        display: flex;
+        flex-direction: column;
     }
     
     .agent-card:hover {
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .agent-card .card-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .agent-card .card-body > div:last-child {
+        margin-top: auto;
     }
     
     .card-header-custom {
@@ -274,6 +289,7 @@
         flex-direction: column;
         gap: 8px;
         margin-bottom: 16px;
+        flex-grow: 1;
     }
     
     .meta-item {

@@ -3,181 +3,166 @@
 {% block title %}Visual Designer - Lakebridge{% endblock %}
 
 {% block content %}
-<div class="designer-container">
-    <div class="container-fluid px-5 py-4">
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="mb-4">
-                    <h1 class="page-title">
-                        <i class="fas fa-sitemap me-2" style="color: #1E88E5;"></i>Digital Workers in Agentbricks
-                    </h1>
-                    <p class="subtitle">Design and manage your migration agents and tasks</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Agents Section -->
-        <div class="row mb-5">
-            <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h2 class="section-header mb-0">
-                        <i class="fas fa-robot me-2"></i>Migration Agents
-                    </h2>
-                    <button class="btn-primary-custom" id="addAgentBtn">
-                        <i class="fas fa-plus me-1"></i>Add Agent
-                    </button>
-                </div>
-                <div class="row g-4" id="agentsContainer">
-                    {% for agent in agents %}
-                    <div class="col-md-6 col-lg-4">
-                        <div class="card agent-card h-100" data-agent-id="{{ agent.id }}">
-                            <div class="card-header-custom" style="background-color: {{ agent.color_start }};">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <h5 class="mb-0 text-white">
-                                        <i class="fas {{ agent.icon }} me-2"></i>{{ agent.name }}
-                                    </h5>
-                                    <span class="status-badge-active">{{ agent.status }}</span>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <p class="card-description">{{ agent.description }}</p>
-                                <div class="agent-meta">
-                                    <div class="meta-item">
-                                        <i class="fas fa-layer-group me-1"></i>
-                                        <span class="meta-label">Type:</span> {{ agent.type }}
-                                    </div>
-                                    <div class="meta-item">
-                                        <i class="fas fa-tasks me-1"></i>
-                                        <span class="meta-label">Tasks:</span> {{ agent.task_count }}
-                                    </div>
-                                    <div class="meta-item">
-                                        <i class="fas fa-clock me-1"></i>
-                                        <span class="meta-label">Last Run:</span> {{ agent.last_run }}
-                                    </div>
-                                </div>
-                                <div class="d-flex gap-2 mt-3">
-                                    <button class="btn-secondary-custom flex-fill view-tasks-btn" data-agent-id="{{ agent.id }}">
-                                        <i class="fas fa-eye me-1"></i>View Tasks
-                                    </button>
-                                    <button class="btn-icon edit-agent-btn" data-agent-id="{{ agent.id }}" title="Edit">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn-icon delete-agent-btn" data-agent-id="{{ agent.id }}" title="Delete">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-
-        <!-- Tasks Section -->
-        <div class="row">
-            <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h2 class="section-header mb-0">
-                        <i class="fas fa-tasks me-2"></i>Migration Tasks
-                    </h2>
-                    <button class="btn-primary-custom" id="addTaskBtn">
-                        <i class="fas fa-plus me-1"></i>Add Task
-                    </button>
-                </div>
-                
-                <div class="card data-table-card">
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th><i class="fas fa-check-circle me-1"></i>Status</th>
-                                        <th><i class="fas fa-tag me-1"></i>Task Name</th>
-                                        <th><i class="fas fa-robot me-1"></i>Agent</th>
-                                        <th><i class="fas fa-layer-group me-1"></i>Type</th>
-                                        <th><i class="fas fa-percentage me-1"></i>Progress</th>
-                                        <th><i class="fas fa-cog me-1"></i>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tasksTableBody">
-                                    {% for task in tasks %}
-                                    <tr data-task-id="{{ task.id }}" class="task-row">
-                                        <td>
-                                            {% if task.status == 'Completed' %}
-                                            <span class="status-badge-success">
-                                                <span class="status-dot"></span>{{ task.status }}
-                                            </span>
-                                            {% elif task.status == 'In Progress' %}
-                                            <span class="status-badge-warning">
-                                                <span class="status-dot"></span>{{ task.status }}
-                                            </span>
-                                            {% else %}
-                                            <span class="status-badge-pending">
-                                                <span class="status-dot"></span>{{ task.status }}
-                                            </span>
-                                            {% endif %}
-                                        </td>
-                                        <td><strong class="task-name">{{ task.name }}</strong></td>
-                                        <td>
-                                            <span class="agent-badge" style="background-color: {{ task.agent_color }};">
-                                                {{ task.agent_name }}
-                                            </span>
-                                        </td>
-                                        <td class="text-secondary">{{ task.type }}</td>
-                                        <td>
-                                            <div class="progress-container">
-                                                <div class="progress-bar-custom" style="width: {{ task.progress }}%;">
-                                                </div>
-                                                <span class="progress-text">{{ task.progress }}%</span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="action-buttons">
-                                                <button class="btn-icon view-task-btn" data-task-id="{{ task.id }}" title="View">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                                <button class="btn-icon run-task-btn" data-task-id="{{ task.id }}" title="Run">
-                                                    <i class="fas fa-play"></i>
-                                                </button>
-                                                <button class="btn-icon delete-task-btn" data-task-id="{{ task.id }}" title="Delete">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Workflow Visualization -->
-        <div class="row mt-5">
-            <div class="col-12">
-                <h2 class="section-header mb-3">
-                    <i class="fas fa-project-diagram me-2"></i>Workflow Visualization
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold">
+                    <i class="fas fa-sitemap text-primary me-2"></i>Digital Workers in Agentbricks
                 </h2>
-                <div class="card workflow-card">
-                    <div class="card-body">
-                        <div id="workflowCanvas" class="workflow-canvas">
-                            <div class="text-center py-5">
-                                <i class="fas fa-project-diagram fa-4x mb-3" style="color: #1E88E5;"></i>
-                                <h5 class="workflow-title">Workflow Diagram</h5>
-                                <p class="text-secondary">Visual representation of your migration workflow</p>
-                                <div class="workflow-preview mt-4">
-                                    {% for agent in agents %}
-                                    <div class="workflow-node" style="background-color: {{ agent.color_start }};">
-                                        <i class="fas {{ agent.icon }} me-2"></i>{{ agent.name }}
-                                    </div>
-                                    {% if not loop.last %}
-                                    <i class="fas fa-arrow-right mx-2 workflow-arrow"></i>
-                                    {% endif %}
-                                    {% endfor %}
+                <p class="text-muted">Design and manage your migration agents and tasks</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agents Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="mb-0"><i class="fas fa-robot me-2" style="color: #2563eb;"></i>Migration Agents</h3>
+                <button class="btn btn-primary" id="addAgentBtn">
+                    <i class="fas fa-plus me-1"></i>Add Agent
+                </button>
+            </div>
+            <div class="row g-3" id="agentsContainer">
+                {% for agent in agents %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card agent-card h-100 shadow-sm" data-agent-id="{{ agent.id }}">
+                        <div class="card-header" style="background: linear-gradient(135deg, {{ agent.color_start }} 0%, {{ agent.color_end }} 100%); color: white;">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">
+                                    <i class="fas {{ agent.icon }} me-2"></i>{{ agent.name }}
+                                </h5>
+                                <span class="badge bg-light text-dark">{{ agent.status }}</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">{{ agent.description }}</p>
+                            <div class="mb-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-layer-group me-1"></i>Type: {{ agent.type }}
+                                </small>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-tasks me-1"></i>Tasks: {{ agent.task_count }}
+                                </small>
+                            </div>
+                            <div class="mb-3">
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>Last Run: {{ agent.last_run }}
+                                </small>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-primary flex-fill view-tasks-btn" data-agent-id="{{ agent.id }}">
+                                    <i class="fas fa-eye me-1"></i>View Tasks
+                                </button>
+                                <button class="btn btn-sm btn-outline-primary edit-agent-btn" data-agent-id="{{ agent.id }}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger delete-agent-btn" data-agent-id="{{ agent.id }}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Tasks Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="mb-0"><i class="fas fa-tasks me-2" style="color: #3d8fcf;"></i>Migration Tasks</h3>
+                <button class="btn btn-primary" id="addTaskBtn">
+                    <i class="fas fa-plus me-1"></i>Add Task
+                </button>
+            </div>
+            
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead style="background-color: #e0f2fe;">
+                                <tr>
+                                    <th><i class="fas fa-check-circle me-1"></i>Status</th>
+                                    <th><i class="fas fa-tag me-1"></i>Task Name</th>
+                                    <th><i class="fas fa-robot me-1"></i>Agent</th>
+                                    <th><i class="fas fa-layer-group me-1"></i>Type</th>
+                                    <th><i class="fas fa-percentage me-1"></i>Progress</th>
+                                    <th><i class="fas fa-cog me-1"></i>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tasksTableBody">
+                                {% for task in tasks %}
+                                <tr data-task-id="{{ task.id }}" class="task-row">
+                                    <td>
+                                        <span class="badge" style="background-color: {{ task.status_color }};">
+                                            <i class="fas {{ task.status_icon }} me-1"></i>{{ task.status }}
+                                        </span>
+                                    </td>
+                                    <td><strong>{{ task.name }}</strong></td>
+                                    <td>
+                                        <span class="badge" style="background-color: {{ task.agent_color }};">
+                                            {{ task.agent_name }}
+                                        </span>
+                                    </td>
+                                    <td>{{ task.type }}</td>
+                                    <td>
+                                        <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar" role="progressbar" 
+                                                 style="width: {{ task.progress }}%; background-color: #3d8fcf;" 
+                                                 aria-valuenow="{{ task.progress }}" aria-valuemin="0" aria-valuemax="100">
+                                                {{ task.progress }}%
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary view-task-btn" data-task-id="{{ task.id }}">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-success run-task-btn" data-task-id="{{ task.id }}">
+                                                <i class="fas fa-play"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger delete-task-btn" data-task-id="{{ task.id }}">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Workflow Visualization -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h3 class="mb-3"><i class="fas fa-project-diagram me-2" style="color: #1a4d7a;"></i>Workflow Visualization</h3>
+            <div class="card shadow-sm">
+                <div class="card-body" style="background: linear-gradient(135deg, #f0f7ff 0%, #e0f2fe 100%);">
+                    <div id="workflowCanvas" style="min-height: 400px; position: relative; padding: 2rem;">
+                        <div class="text-center py-5">
+                            <i class="fas fa-project-diagram fa-4x mb-3" style="color: #3d8fcf;"></i>
+                            <h5>Workflow Diagram</h5>
+                            <p class="text-muted">Visual representation of your migration workflow</p>
+                            <div class="workflow-preview mt-4">
+                                {% for agent in agents %}
+                                <div class="workflow-node" style="display: inline-block; margin: 10px; padding: 15px 25px; border-radius: 10px; background: linear-gradient(135deg, {{ agent.color_start }} 0%, {{ agent.color_end }} 100%); color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                                    <i class="fas {{ agent.icon }} me-2"></i>{{ agent.name }}
                                 </div>
+                                {% if not loop.last %}
+                                <i class="fas fa-arrow-right mx-2" style="color: #2563eb;"></i>
+                                {% endif %}
+                                {% endfor %}
                             </div>
                         </div>
                     </div>
@@ -188,370 +173,40 @@
 </div>
 
 <style>
-    /* Design System Based on Design.docx Specifications */
-    
-    /* Color Palette */
-    :root {
-        --primary-navy: #0A2540;
-        --accent-blue: #1E88E5;
-        --success-green: #10b981;
-        --warning-amber: #f59e0b;
-        --gray-light: #F5F7FA;
-        --gray-medium: #6B7280;
-        --gray-dark: #1F2937;
-        --gray-border: #E5E7EB;
-        --white: #FFFFFF;
-    }
-    
-    /* Container */
-    .designer-container {
-        background-color: var(--gray-light);
-        min-height: 100vh;
-        padding-bottom: 48px;
-    }
-    
-    /* Typography */
-    .page-title {
-        font-size: 28px;
-        font-weight: 600;
-        color: var(--gray-dark);
-        margin-bottom: 8px;
-    }
-    
-    .subtitle {
-        font-size: 14px;
-        color: var(--gray-medium);
-        margin-bottom: 0;
-    }
-    
-    .section-header {
-        font-size: 18px;
-        font-weight: 500;
-        color: var(--gray-dark);
-    }
-    
-    .section-header i {
-        color: var(--accent-blue);
-    }
-    
-    /* Cards */
-    .card {
-        background: var(--white);
-        border: 1px solid var(--gray-border);
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
-        transition: box-shadow 150ms ease;
-    }
-    
     .agent-card {
-        transition: all 150ms ease;
+        border: 2px solid #60a5fa;
+        transition: all 0.3s ease;
+        background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%);
     }
     
     .agent-card:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
+        border-color: #2563eb;
     }
     
-    .card-header-custom {
-        padding: 16px 24px;
-        border-radius: 8px 8px 0 0;
-        border: none;
+    .task-row {
+        transition: background-color 0.2s ease;
     }
     
-    .card-body {
-        padding: 24px;
-    }
-    
-    .card-description {
-        font-size: 14px;
-        color: var(--gray-dark);
-        margin-bottom: 16px;
-        line-height: 1.6;
-    }
-    
-    /* Agent Meta Information */
-    .agent-meta {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        margin-bottom: 16px;
-    }
-    
-    .meta-item {
-        font-size: 13px;
-        color: var(--gray-medium);
-        display: flex;
-        align-items: center;
-    }
-    
-    .meta-item i {
-        color: var(--gray-medium);
-        font-size: 16px;
-    }
-    
-    .meta-label {
-        font-weight: 500;
-    }
-    
-    /* Buttons */
-    .btn-primary-custom {
-        background-color: var(--accent-blue);
-        color: var(--white);
-        border: none;
-        border-radius: 6px;
-        padding: 10px 16px;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: background-color 150ms ease;
-        display: inline-flex;
-        align-items: center;
-        min-height: 40px;
-    }
-    
-    .btn-primary-custom:hover {
-        background-color: #1976D2;
-    }
-    
-    .btn-secondary-custom {
-        background-color: var(--white);
-        color: var(--gray-dark);
-        border: 1px solid var(--gray-border);
-        border-radius: 6px;
-        padding: 8px 12px;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 150ms ease;
-        min-height: 36px;
-    }
-    
-    .btn-secondary-custom:hover {
-        background-color: var(--gray-light);
-        border-color: var(--gray-medium);
-    }
-    
-    .btn-icon {
-        background: transparent;
-        border: none;
-        color: var(--gray-medium);
-        cursor: pointer;
-        padding: 8px;
-        border-radius: 6px;
-        transition: all 150ms ease;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 36px;
-        min-height: 36px;
-    }
-    
-    .btn-icon:hover {
-        background-color: var(--gray-light);
-        color: var(--gray-dark);
-    }
-    
-    /* Status Badges */
-    .status-badge-active,
-    .status-badge-success,
-    .status-badge-warning,
-    .status-badge-pending {
-        display: inline-flex;
-        align-items: center;
-        padding: 4px 12px;
-        border-radius: 12px;
-        font-size: 12px;
-        font-weight: 500;
-        gap: 6px;
-    }
-    
-    .status-badge-active {
-        background-color: #E8F5E9;
-        color: #2E7D32;
-    }
-    
-    .status-badge-success {
-        background-color: #E8F5E9;
-        color: #2E7D32;
-    }
-    
-    .status-badge-warning {
-        background-color: #FFF3E0;
-        color: #E65100;
-    }
-    
-    .status-badge-pending {
-        background-color: var(--gray-light);
-        color: var(--gray-medium);
-    }
-    
-    .status-dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        display: inline-block;
-    }
-    
-    .status-badge-success .status-dot {
-        background-color: var(--success-green);
-    }
-    
-    .status-badge-warning .status-dot {
-        background-color: var(--warning-amber);
-    }
-    
-    .status-badge-pending .status-dot {
-        background-color: var(--gray-medium);
-    }
-    
-    .agent-badge {
-        padding: 4px 12px;
-        border-radius: 12px;
-        font-size: 12px;
-        font-weight: 500;
-        color: var(--white);
-        display: inline-block;
-    }
-    
-    /* Data Table */
-    .data-table-card {
-        margin-top: 16px;
-    }
-    
-    .data-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 14px;
-    }
-    
-    .data-table thead th {
-        background-color: var(--gray-light);
-        color: var(--gray-dark);
-        font-weight: 500;
-        font-size: 13px;
-        text-align: left;
-        padding: 12px 16px;
-        border-bottom: 1px solid var(--gray-border);
-    }
-    
-    .data-table thead th i {
-        color: var(--gray-medium);
-        font-size: 14px;
-    }
-    
-    .data-table tbody tr {
-        border-bottom: 1px solid var(--gray-border);
-        transition: background-color 150ms ease;
-    }
-    
-    .data-table tbody tr:hover {
-        background-color: #F9FAFB;
-    }
-    
-    .data-table tbody td {
-        padding: 16px;
-        color: var(--gray-dark);
-        min-height: 56px;
-    }
-    
-    .task-name {
-        color: var(--gray-dark);
-        font-weight: 500;
-    }
-    
-    .text-secondary {
-        color: var(--gray-medium);
-    }
-    
-    .action-buttons {
-        display: flex;
-        gap: 4px;
-    }
-    
-    /* Progress Bar */
-    .progress-container {
-        position: relative;
-        width: 120px;
-        height: 24px;
-        background-color: var(--gray-light);
-        border-radius: 4px;
-        overflow: hidden;
-    }
-    
-    .progress-bar-custom {
-        height: 100%;
-        background-color: var(--accent-blue);
-        transition: width 300ms ease;
-    }
-    
-    .progress-text {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 12px;
-        font-weight: 500;
-        color: var(--gray-dark);
-    }
-    
-    /* Workflow Visualization */
-    .workflow-card {
-        background-color: var(--white);
-    }
-    
-    .workflow-canvas {
-        min-height: 400px;
-        padding: 32px;
-    }
-    
-    .workflow-title {
-        font-size: 18px;
-        font-weight: 500;
-        color: var(--gray-dark);
-        margin-top: 16px;
-    }
-    
-    .workflow-preview {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-wrap: wrap;
-        gap: 16px;
+    .task-row:hover {
+        background-color: #dbeafe;
     }
     
     .workflow-node {
-        display: inline-flex;
-        align-items: center;
-        padding: 12px 24px;
-        border-radius: 8px;
-        color: var(--white);
-        font-size: 14px;
-        font-weight: 500;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        transition: transform 150ms ease;
+        animation: fadeInUp 0.5s ease-in-out;
     }
     
-    .workflow-node:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
-    
-    .workflow-arrow {
-        color: var(--accent-blue);
-        font-size: 20px;
-    }
-    
-    /* Spacing System (8px base) */
-    .mb-3 { margin-bottom: 24px; }
-    .mb-4 { margin-bottom: 32px; }
-    .mb-5 { margin-bottom: 40px; }
-    .mt-3 { margin-top: 24px; }
-    .mt-4 { margin-top: 32px; }
-    .mt-5 { margin-top: 40px; }
-    .py-4 { padding-top: 32px; padding-bottom: 32px; }
-    .py-5 { padding-top: 40px; padding-bottom: 40px; }
-    .px-5 { padding-left: 40px; padding-right: 40px; }
-    .gap-2 { gap: 16px; }
-    .gap-4 { gap: 32px; }
 </style>
 
 {% endblock %}
